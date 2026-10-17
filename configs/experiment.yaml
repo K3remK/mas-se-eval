@@ -1,0 +1,54 @@
+experiment_name: "cs401_real_benchmark"
+output_dir: "results/cs401_real"
+
+
+# Reproducability
+llm_settings:
+  base_url: "http://localhost:11434/v1"
+  temperature: 0.0
+  seed: 42
+  num_ctx: 16384          # Use 4096 or 8192 on 4GB VRAM laptop; 16384 or 32768 on high-spec server
+  max_tokens: 2048       # Plenty of room for full Chain-of-Thought without allowing 4000-token infinite loops
+  timeout_sec: 180.0     # Safety timeout per single LLM call
+
+# Models to be tested. We can add as many models as we want.
+models:
+  - "qwen2.5-coder:7b"
+  - "qwen2.5-coder:14b"
+  - "qwen2.5-coder:32b"
+  # -"deepseek-coder-v2:16b"
+
+# Datasets to be tested on. We can add as much dataset as we want.
+datasets:
+  - name: "sven_real_pairs"
+    path: "data/sven_val_paired_30.jsonl"
+    max_samples: 60                           # Start with 20 functions (10 real-word pairs) for a ~15 mins
+  - name: "primevul_real_pairs"
+    path: "data/primevul_test_paired_30.jsonl"
+    max_samples: 60
+
+# Agent configurations to be run
+configurations:
+  - id: "baseline1_direct"
+    enabled: true
+    params: { }
+
+  - id: "baseline2_self_refine"
+    enabled: true
+    params:
+      max_iterations: 1
+
+  - id: "config3_actor_critic"
+    enabled: true
+    params:
+      max_rounds: 1
+
+  - id: "config4_vultrial"
+    enabled: true
+    params:
+      max_rounds: 1
+
+  - id: "config5_voting"
+    enabled: true
+    params: { }
+

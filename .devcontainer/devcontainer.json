@@ -1,0 +1,23 @@
+{
+  "name": "CS401-MultiAgent-Eval-Env",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  // Konteyner ilk açıldığında Python paketlerini otomatik kurar
+  "postCreateCommand": "uv pip install --system -r requirements.txt",
+  // Ana makinedeki Ollama sunucusuna konteyner içinden erişmek için
+  "runArgs": [
+    "--add-host=host.docker.internal:host-gateway"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "charliermarsh.ruff"
+      ]
+    },
+    "jetbrains": {
+      "backend": "PyCharm"
+    }
+  }
+}

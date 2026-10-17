@@ -1,0 +1,17 @@
+FUNCTION_SCOPE_PRINCIPLES = (
+  "ANALYSIS SCOPE & PRINCIPLES (APPLY STRICTLY):\n"
+  "1. STRICT CODE GROUNDING: Never invent or assume lines of code that are not literally written in the snippet. "
+  "Routine filesystem queries (checking if a file/directory exists, getting file info, or converting path separators) "
+  "do NOT sanitize path traversal or untrusted input.\n"
+  "2. RECOGNIZING REAL FIXES & MITIGATIONS: You are analyzing a single function from a real-world repository. "
+  "Treat a hazard as MITIGATED (benign / `false`) if the snippet explicitly performs any of the following:\n"
+  "   - Calls a dedicated validation, sanitization, escaping, or path-resolution helper function on the input before use.\n"
+  "   - Strips or rejects dangerous characters/substrings (e.g., removing upward path segments or validating characters via regex outside the vulnerable sink).\n"
+  "   - Passes command arguments as a discrete list/array of strings rather than interpolating variables into a single command string.\n"
+  "   - Passes database query parameters as a separate tuple/argument rather than using string formatting (`%` or `.format`) inside the SQL string.\n"
+  "   - Enforces explicit bounds, null, or state checks (or uses RAII cleanup) before sensitive memory/pointer/arithmetic operations.\n"
+  "   Do NOT critique a developer's explicit sanitization patch as 'incomplete'—if an explicit sanitization or safe API pattern is present, mark the code as benign (`false`).\n"
+  "3. CONFIRMING VULNERABILITIES: If untrusted parameters or inputs flow directly into file paths, shell command strings, "
+  "SQL strings, unescaped HTML, unchecked array/pointer dereferences, or reachable crash assertions without the mitigations in Rule 2, "
+  "mark the function as vulnerable (`true`)."
+)

@@ -1,0 +1,82 @@
+{
+  "sample_id": "test_001_vuln",
+  "pair_id": "pair_01",
+  "config_name": "Baseline1_Direct_LLM",
+  "model_name": "qwen2.5-coder:7b",
+  "prediction": {
+    "is_vulnerable": false,
+    "confidence_score": 1,
+    "vulnerability_type": "None",
+    "reasoning": "The provided code snippet is a simple function to retrieve an element from an array based on a given index. It includes a basic boundary check to ensure the index is within the valid range of the array. If the index is out of bounds, it returns -1, which is a common practice to indicate an error or invalid input. There are no obvious bugs or security vulnerabilities in this code snippet."
+  },
+  "ground_truth": true,
+  "is_correct": false,
+  "prompt_tokens": 104,
+  "completion_tokens": 117,
+  "total_tokens": 221,
+  "latency_sec": 14.1269,
+  "llm_calls_count": 1,
+  "raw_messages": [
+    {
+      "call_index": 1,
+      "input_messages": [
+        {
+          "role": "system",
+          "content": "You are an expert software security researcher and static analysis engine. Analyze the provided code snippet and determine whether it contains any bugs or security vulnerabilities. Think step-by-step and output your final verdict strictly following the required JSON schema."
+        },
+        {
+          "role": "user",
+          "content": "Programming Language: c\nCode Snippet: c\nint get_element(int *arr, int len, int index) {\n    if (index < len) {\n        return arr[index];\n    }\n    return -1;\n}"
+        }
+      ],
+      "output": {
+        "is_vulnerable": false,
+        "confidence_score": 1,
+        "vulnerability_type": "None",
+        "reasoning": "The provided code snippet is a simple function to retrieve an element from an array based on a given index. It includes a basic boundary check to ensure the index is within the valid range of the array. If the index is out of bounds, it returns -1, which is a common practice to indicate an error or invalid input. There are no obvious bugs or security vulnerabilities in this code snippet."
+      },
+      "latency_sec": 14.1269
+    }
+  ]
+}
+{
+  "sample_id": "test_001_benign",
+  "pair_id": "pair_01",
+  "config_name": "Baseline1_Direct_LLM",
+  "model_name": "qwen2.5-coder:7b",
+  "prediction": {
+    "is_vulnerable": false,
+    "confidence_score": 1,
+    "vulnerability_type": "None",
+    "reasoning": "The provided code snippet is a simple function to retrieve an element from an array based on a given index. It includes a basic boundary check to ensure the index is within the valid range (0 to len-1). If the index is out of bounds, it returns -1. This function does not contain any obvious bugs or security vulnerabilities."
+  },
+  "ground_truth": false,
+  "is_correct": true,
+  "prompt_tokens": 109,
+  "completion_tokens": 106,
+  "total_tokens": 215,
+  "latency_sec": 9.9395,
+  "llm_calls_count": 1,
+  "raw_messages": [
+    {
+      "call_index": 1,
+      "input_messages": [
+        {
+          "role": "system",
+          "content": "You are an expert software security researcher and static analysis engine. Analyze the provided code snippet and determine whether it contains any bugs or security vulnerabilities. Think step-by-step and output your final verdict strictly following the required JSON schema."
+        },
+        {
+          "role": "user",
+          "content": "Programming Language: c\nCode Snippet: c\nint get_element(int *arr, int len, int index) {\n    if (index >= 0 && index < len) {\n        return arr[index];\n    }\n    return -1;\n}"
+        }
+      ],
+      "output": {
+        "is_vulnerable": false,
+        "confidence_score": 1,
+        "vulnerability_type": "None",
+        "reasoning": "The provided code snippet is a simple function to retrieve an element from an array based on a given index. It includes a basic boundary check to ensure the index is within the valid range (0 to len-1). If the index is out of bounds, it returns -1. This function does not contain any obvious bugs or security vulnerabilities."
+      },
+      "latency_sec": 9.9395
+    }
+  ]
+}

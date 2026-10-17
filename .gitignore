@@ -1,0 +1,51 @@
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Datasets (generated locally via prepare_real_datasets.py)
+data/
+
+# Raw execution traces (large JSONL files)
+# Note: You can force-add summary_report.md if you want to share summary tables
+results/**/raw_traces*.jsonl
+
+# PyCharm / JetBrains / VS Code IDE files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
+
+# OS & Environment Files
+.DS_Store
+Thumbs.db
+.env
+.env.local
