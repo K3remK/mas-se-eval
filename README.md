@@ -67,8 +67,8 @@ mas-se-eval/
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/<your-username>/<your-repo-name>.git
-cd <your-repo-name>
+git clone https://github.com/K3remK/mas-se-eval.git
+cd mas-se-eval
 ```
 
 ### Step 2: Create a Virtual Environment and Install Dependencies

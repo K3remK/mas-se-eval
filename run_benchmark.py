@@ -13,11 +13,6 @@ from src.evaluation.reporter import generate_reports
 
 console = Console()
 
-#TODO 1: ask gemini to keep record of found anomalies and problems along with their proposed solutions in the project.
-#TODO 1: it would be good showcase for project report and presentation
-
-#TODO 2: run the model on colab and connect to it from the code if it is possible
-
 def load_samples(filepath: str, max_samples: int = None):
   samples = []
   with open(filepath, "r", encoding="utf-8") as f:
