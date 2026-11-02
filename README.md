@@ -57,12 +57,15 @@ mas-se-eval/
 ├── run_benchmark.py                            # Main execution harness with incremental JSONL checkpointing & caching
 ├── ollama_colab_setup.ipynb                    # Google Colab GPU server notebook (Ollama + Cloudflare Tunnel)
 ├── PROJECT_CHALLENGES_AND_SOLUTIONS.md         # Documentation of engineering anomalies and solutions
-├── requirements.txt                            # Python dependencies
+├── pyproject.toml                              # Modern project definition and dependencies (uv managed)
+├── uv.lock                                     # Fully locked dependency tree for deterministic builds
 └── README.md
 ```
 ---
 
-## 4. Prerequisites and Installation
+## 4. Prerequisites and Installation (`uv` Workflow)
+
+This project uses **`uv`** by Astral for lightning-fast, reproducible dependency management and isolated virtual environments.
 
 ### Step 1: Clone the Repository
 
@@ -71,40 +74,37 @@ git clone https://github.com/K3remK/mas-se-eval.git
 cd mas-se-eval
 ```
 
-### Step 2: Create a Virtual Environment and Install Dependencies
-
-Requires **Python 3.10+**.
+### Step 2: Install `uv` (if not already installed)
 
 **On Windows (PowerShell):**
-
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-pip install datasets huggingface_hub pyyaml rich
+winget install --id=Astral.Uv -e
 ```
 
 **On Linux / macOS:**
-
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-pip install datasets huggingface_hub pyyaml rich
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+### Step 3: Synchronize Environment and Python Version
+
+Run the following command in the project root. `uv` will automatically pin Python 3.12, create the isolated `.venv`, and sync all dependencies from `pyproject.toml` and `uv.lock`:
+
+```powershell
+uv sync
 ```
 
 ---
 
 ## 5. Dataset Preparation (SVEN and PrimeVul)
 
-The repository does not store large raw dataset files in Git. Instead, run the automated dataset builder script. It downloads pinned revisions of SVEN (`bstee615/sven`) and the PrimeVul Paired Test set (`colin/PrimeVul`) directly from Hugging Face Hub, filters out unit-test noise, and builds balanced `.jsonl` pair files inside `data/`:
+The repository does not store large raw dataset files in Git. Instead, run the automated dataset builder script via `uv run`:
 
-```bash
-python prepare_real_datasets.py
+```powershell
+uv run python prepare_real_datasets.py
 ```
 
 This generates:
-
 - `data/sven_val_paired_30.jsonl` (60 functions / 30 vulnerability-fixing pairs in Python, C, and C++)
 - `data/primevul_test_paired_30.jsonl` (60 functions / 30 vulnerability-fixing pairs in C and C++)
 
@@ -119,7 +119,6 @@ You can run the LLM inference backend either locally on your own PC/GPU (**Optio
 1. **Install Ollama:** Download and install Ollama from [https://ollama.com](https://ollama.com).
 
 2. **Pull your target model(s):**
-
    ```bash
    ollama pull qwen2.5-coder:7b
    # Optional for 16GB+ / 24GB+ VRAM systems:
@@ -127,15 +126,7 @@ You can run the LLM inference backend either locally on your own PC/GPU (**Optio
    ollama pull qwen2.5-coder:32b
    ```
 
-3. **(Optional, for 4GB to 6GB VRAM laptops)** Enable Flash Attention and 8-bit KV cache quantization in PowerShell before starting Ollama:
-
-   ```powershell
-   [System.Environment]::SetEnvironmentVariable("OLLAMA_FLASH_ATTENTION", "1", "User")
-   [System.Environment]::SetEnvironmentVariable("OLLAMA_KV_CACHE_TYPE", "q8_0", "User")
-   ```
-
-4. **Configure `configs/experiment.yaml`:** Ensure `base_url` points to your local Ollama server:
-
+3. **Configure `configs/experiment.yaml`:** Ensure `base_url` points to your local Ollama server:
    ```yaml
    llm_settings:
      base_url: "http://localhost:11434/v1"
@@ -146,72 +137,32 @@ You can run the LLM inference backend either locally on your own PC/GPU (**Optio
      timeout_sec: 180.0
    ```
 
-5. **Run the benchmark:**
-
-   ```bash
-   python run_benchmark.py --config configs/experiment.yaml
+4. **Run the benchmark:**
+   ```powershell
+   uv run python run_benchmark.py --config configs/experiment.yaml
    ```
 
 ### Option B: Running Models on Google Colab GPU (`ollama_colab_setup.ipynb`)
 
-If your local machine has limited VRAM, you can host Ollama on a free Google Colab T4 GPU (16 GB VRAM) or a Colab Pro A100 GPU (40/80 GB VRAM) and connect to it from your local IDE (PyCharm / VS Code) via an encrypted Cloudflare Quick Tunnel.
-
-1. **Upload the notebook to Google Colab:**
-    - Open [Google Colab](https://colab.research.google.com).
-    - Click **File → Upload notebook** and select `ollama_colab_setup.ipynb` from the root of this repository.
-
-2. **Select a GPU runtime:**
-    - In Colab, go to **Runtime → Change runtime type** and select **T4 GPU** or **A100 GPU**.
-
-3. **Run the setup cell:**
-    - Run the notebook cell. It will install Ollama, pull the required `qwen2.5-coder` models (7b, 14b, 32b), start the Ollama server, and launch a `cloudflared` tunnel.
-    - At the bottom of the cell output, copy the generated tunnel URL:
-
-   ```text
-   ======================================================================
-   COLAB GPU SERVER READY!
-   Paste this into configs/experiment.yaml under base_url:
-     base_url: "https://random-words-here.trycloudflare.com/v1"
-   ======================================================================
-   ```
-
-4. **Update `configs/experiment.yaml` locally:** Paste that URL into `configs/experiment.yaml` on your PC:
-
-   ```yaml
-   llm_settings:
-     base_url: "https://random-words-here.trycloudflare.com/v1"
-     temperature: 0.0
-     seed: 42
-     num_ctx: 8192
-     max_tokens: 1024
-     timeout_sec: 180.0
-   ```
-
-5. **Execute the benchmark from your local terminal:**
-
-   ```bash
-   python run_benchmark.py --config configs/experiment.yaml
+1. **Upload the notebook to Google Colab** (`ollama_colab_setup.ipynb`) and select **T4 GPU** or **A100 GPU** under runtime type.
+2. **Run the setup cell** to start Ollama and generate a Cloudflare tunnel URL.
+3. **Update `configs/experiment.yaml` locally** with the generated tunnel URL under `base_url`.
+4. **Execute the benchmark from your local terminal:**
+   ```powershell
+   uv run python run_benchmark.py --config configs/experiment.yaml
    ```
 
 ---
 
 ## 7. Checkpointing, Resuming, and Viewing Results
 
-**Automatic checkpointing and resume:** `run_benchmark.py` writes every completed function evaluation immediately to `<output_dir>/raw_traces.jsonl`. If a run is interrupted, simply re-run:
-
-```bash
-python run_benchmark.py --config configs/experiment.yaml
+**Automatic checkpointing and resume:** `run_benchmark.py` writes every completed function evaluation immediately to `<output_dir>/raw_traces.jsonl`. If interrupted, simply re-run:
+```powershell
+uv run python run_benchmark.py --config configs/experiment.yaml
 ```
 
-Completed `(model, dataset, config, sample_id)` entries are loaded from cache (`[CACHED]`) instantaneously.
-
-**Starting a fresh run:** Pass `--no-resume` to ignore existing checkpoints and overwrite results:
-
-```bash
-python run_benchmark.py --config configs/experiment.yaml --no-resume
-```
+Completed entries load instantaneously from cache (`[CACHED]`). Pass `--no-resume` to ignore checkpoints and overwrite results.
 
 **Outputs generated:**
-
 - `<output_dir>/summary_report.md`: Markdown table of all accuracy, pairwise (P-C, P-V, P-B, P-R), token, and latency metrics.
 - `<output_dir>/raw_traces.jsonl`: Complete per-sample JSONL logs containing every agent prompt, intermediate rebuttal, tool output, and final verdict.
